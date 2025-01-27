@@ -4,19 +4,52 @@
   import Logo from '$lib/components/Logo.svelte'
 
   let mediaFile = $state<File | null>(null)
+  let mediaFilePreviewBlob = $state<Blob | null>(null)
   let lrcFile = $state<File | null>(null)
+  let lrcFileContent = $state<string | null>(null)
 
-  function handleMediaFileSelect(event: Event) {
+  async function handleMediaFileSelect(event: Event) {
     const input = event.target as HTMLInputElement
     if (input.files?.length) {
       mediaFile = input.files[0]
+
+      // Get random frame from the video
+      const video = document.createElement('video')
+      video.src = URL.createObjectURL(mediaFile)
+
+      await new Promise((resolve) => {
+        video.onloadedmetadata = () => {
+          video.currentTime = Math.random() * video.duration
+          resolve(null)
+        }
+      })
+
+      await new Promise((resolve) => {
+        video.onseeked = () => {
+          // Create a canvas and draw video frame
+          const canvas = document.createElement('canvas')
+          canvas.width = video.videoWidth
+          canvas.height = video.videoHeight
+          const ctx = canvas.getContext('2d')
+          ctx?.drawImage(video, 0, 0)
+
+          // Convert to blob
+          canvas.toBlob((blob) => {
+            if (blob) {
+              mediaFilePreviewBlob = blob
+            }
+            resolve(null)
+          })
+        }
+      })
     }
   }
 
-  function handleLrcFileSelect(event: Event) {
+  async function handleLrcFileSelect(event: Event) {
     const input = event.target as HTMLInputElement
     if (input.files?.length) {
       lrcFile = input.files[0]
+      lrcFileContent = await lrcFile.text()
     }
   }
 </script>
@@ -34,8 +67,16 @@
     class="relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
   >
     <div class="absolute inset-0 rounded-2xl bg-white/10 blur-3xl"></div>
-    <Movie class="size-24" />
-    <span class="text-center text-lg font-medium">
+    {#if mediaFilePreviewBlob}
+      <img
+        src={URL.createObjectURL(mediaFilePreviewBlob)}
+        alt="Media preview"
+        class="h-24 max-w-32 rounded-xl shadow-lg"
+      />
+    {:else}
+      <Movie class="size-24" />
+    {/if}
+    <span class="text-lg font-medium">
       {mediaFile ? mediaFile.name : 'Select a video'}
     </span>
   </label>
@@ -48,8 +89,14 @@
     class="relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
   >
     <div class="absolute inset-0 rounded-2xl bg-white/10 blur-3xl"></div>
-    <Lyrics class="size-24" />
-    <span class="text-center text-lg font-medium">
+    {#if lrcFileContent}
+      <div class="h-24 w-20 rounded-xl bg-white p-1 text-black shadow-lg">
+        <pre class="text-[0.25rem]">{lrcFileContent}</pre>
+      </div>
+    {:else}
+      <Lyrics class="size-24" />
+    {/if}
+    <span class="text-lg font-medium">
       {lrcFile ? lrcFile.name : 'Select a .lrc file'}
     </span>
   </label>
