@@ -64,14 +64,14 @@
   />
   <label
     for="media-input"
-    class="relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
+    class="group relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
   >
-    <div class="absolute inset-0 rounded-2xl bg-white/10 blur-3xl"></div>
+    <div class="absolute inset-0 -z-10 rounded-2xl bg-white/10 blur-3xl"></div>
     {#if mediaFilePreviewBlob}
       <img
         src={URL.createObjectURL(mediaFilePreviewBlob)}
         alt="Media preview"
-        class="h-24 max-w-32 rounded-xl shadow-lg"
+        class="h-24 max-w-32 rounded-xl shadow-lg duration-150 group-hover:scale-105"
       />
     {:else}
       <Movie class="size-24" />
@@ -86,11 +86,13 @@
   <input type="file" accept=".lrc" class="hidden" id="lrc-input" onchange={handleLrcFileSelect} />
   <label
     for="lrc-input"
-    class="relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
+    class="group relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
   >
-    <div class="absolute inset-0 rounded-2xl bg-white/10 blur-3xl"></div>
+    <div class="absolute inset-0 -z-10 rounded-2xl bg-white/10 blur-3xl"></div>
     {#if lrcFileContent}
-      <div class="h-24 w-20 rounded-xl bg-white p-1 text-black shadow-lg">
+      <div
+        class="h-24 w-20 overflow-hidden rounded-xl bg-white p-1 text-black shadow-lg duration-150 group-hover:scale-105"
+      >
         <pre class="text-[0.25rem]">{lrcFileContent}</pre>
       </div>
     {:else}
