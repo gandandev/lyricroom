@@ -1,6 +1,7 @@
 <script lang="ts">
   import Movie from '~icons/material-symbols/movie-rounded'
   import Lyrics from '~icons/material-symbols/lyrics-rounded'
+  import Logo from '$lib/components/Logo.svelte'
 
   let mediaFile = $state<File | null>(null)
   let lrcFile = $state<File | null>(null)
@@ -38,6 +39,8 @@
       {mediaFile ? mediaFile.name : 'Select a video'}
     </span>
   </label>
+
+  <Logo class="size-24" />
 
   <input type="file" accept=".lrc" class="hidden" id="lrc-input" onchange={handleLrcFileSelect} />
   <label
