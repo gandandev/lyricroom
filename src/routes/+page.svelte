@@ -85,15 +85,6 @@
 
         const content = await file.text()
 
-        // Basic LRC format validation (check if it has timestamps)
-        if (!content.match(/\[\d{2}:\d{2}\.\d{2,3}\]/)) {
-          lrcFileError = 'Not a valid LRC file'
-          lrcFile = null
-          lrcFileContent = null
-          $rawLrc = null
-          return
-        }
-
         lrcFileError = null
         lrcFile = file
         lrcFileContent = content
