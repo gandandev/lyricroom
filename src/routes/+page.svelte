@@ -157,7 +157,7 @@
       <div
         class="h-24 w-20 overflow-hidden rounded-xl bg-white p-1 text-black shadow-lg duration-150 group-hover:scale-105"
       >
-        <pre class="text-[0.25rem]">{lrcFileContent}</pre>
+        <pre class="select-none text-[0.25rem]">{lrcFileContent}</pre>
       </div>
     {:else}
       <Lyrics class="size-24" />
