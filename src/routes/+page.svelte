@@ -116,7 +116,7 @@
     {:else}
       <Movie class="size-24" />
     {/if}
-    <span class="text-lg font-medium">
+    <span class="text-center text-lg font-medium">
       {mediaFile ? mediaFile.name : 'Select a video'}
     </span>
     {#if mediaFileError}
@@ -162,7 +162,7 @@
     {:else}
       <Lyrics class="size-24" />
     {/if}
-    <span class="text-lg font-medium">
+    <span class="text-center text-lg font-medium">
       {lrcFile ? lrcFile.name : 'Select a .lrc file'}
     </span>
     {#if lrcFileError}
