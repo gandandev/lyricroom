@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { media, rawLrc } from '$lib/stores'
+  import { media, rawLrc, lrc } from '$lib/stores'
   import { scale, slide } from 'svelte/transition'
+  import lrcParser from 'lrc-parser'
   import Movie from '~icons/material-symbols/movie-rounded'
   import Lyrics from '~icons/material-symbols/lyrics-rounded'
   import PlayArrow from '~icons/material-symbols/play-arrow-rounded'
@@ -68,34 +69,42 @@
   }
 
   async function handleLrcFileSelect(event: Event) {
-    const input = event.target as HTMLInputElement
-    if (input.files?.length) {
-      const file = input.files[0]
+    try {
+      const input = event.target as HTMLInputElement
+      if (input.files?.length) {
+        const file = input.files[0]
 
-      // Validate lrc file extension
-      if (!file.name.toLowerCase().endsWith('.lrc')) {
-        lrcFileError = 'Not a .lrc file'
-        lrcFile = null
-        lrcFileContent = null
-        $rawLrc = null
-        return
+        // Validate lrc file extension
+        if (!file.name.toLowerCase().endsWith('.lrc')) {
+          lrcFileError = 'Not a .lrc file'
+          lrcFile = null
+          lrcFileContent = null
+          $rawLrc = null
+          return
+        }
+
+        const content = await file.text()
+
+        // Basic LRC format validation (check if it has timestamps)
+        if (!content.match(/\[\d{2}:\d{2}\.\d{2,3}\]/)) {
+          lrcFileError = 'Not a valid LRC file'
+          lrcFile = null
+          lrcFileContent = null
+          $rawLrc = null
+          return
+        }
+
+        lrcFileError = null
+        lrcFile = file
+        lrcFileContent = content
+        $rawLrc = content
+        $lrc = lrcParser(content)
       }
-
-      const content = await file.text()
-
-      // Basic LRC format validation (check if it has timestamps)
-      if (!content.match(/\[\d{2}:\d{2}\.\d{2,3}\]/)) {
-        lrcFileError = 'Not a valid LRC file'
-        lrcFile = null
-        lrcFileContent = null
-        $rawLrc = null
-        return
-      }
-
-      lrcFileError = null
-      lrcFile = file
-      lrcFileContent = content
-      $rawLrc = content
+    } catch (error) {
+      lrcFileError = 'Not a valid LRC file'
+      lrcFile = null
+      lrcFileContent = null
+      $rawLrc = null
     }
   }
 </script>
