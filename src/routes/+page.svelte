@@ -76,7 +76,7 @@
 
         // Validate lrc file extension
         if (!file.name.toLowerCase().endsWith('.lrc')) {
-          lrcFileError = 'Not a .lrc file'
+          lrcFileError = 'Not a LRC file'
           lrcFile = null
           lrcFileContent = null
           $rawLrc = null
@@ -179,7 +179,7 @@
       <Lyrics class="size-24" />
     {/if}
     <span class="text-center text-lg font-medium">
-      {lrcFile ? lrcFile.name : 'Select a .lrc file'}
+      {lrcFile ? lrcFile.name : 'Select a LRC file'}
     </span>
     {#if lrcFileError}
       <div
