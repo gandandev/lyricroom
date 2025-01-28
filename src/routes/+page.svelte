@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { scale } from 'svelte/transition'
+  import { scale, slide } from 'svelte/transition'
   import Movie from '~icons/material-symbols/movie-rounded'
   import Lyrics from '~icons/material-symbols/lyrics-rounded'
   import PlayArrow from '~icons/material-symbols/play-arrow-rounded'
+  import Warning from '~icons/material-symbols/warning-rounded'
   import Logo from '$lib/components/Logo.svelte'
 
   let mediaFile = $state<File | null>(null)
@@ -10,12 +11,26 @@
   let lrcFile = $state<File | null>(null)
   let lrcFileContent = $state<string | null>(null)
 
-  let ready = $derived(!!mediaFile && !!lrcFile)
+  let mediaFileError = $state<string | null>(null)
+  let lrcFileError = $state<string | null>(null)
+
+  let ready = $derived(!!mediaFile && !!lrcFile && !mediaFileError && !lrcFileError)
 
   async function handleMediaFileSelect(event: Event) {
     const input = event.target as HTMLInputElement
     if (input.files?.length) {
-      mediaFile = input.files[0]
+      const file = input.files[0]
+
+      // Validate video file
+      if (!file.type.startsWith('video/')) {
+        mediaFileError = 'Not a video file'
+        mediaFile = null
+        mediaFilePreviewBlob = null
+        return
+      }
+
+      mediaFileError = null
+      mediaFile = file
 
       // Get random frame from the video
       const video = document.createElement('video')
@@ -52,8 +67,29 @@
   async function handleLrcFileSelect(event: Event) {
     const input = event.target as HTMLInputElement
     if (input.files?.length) {
-      lrcFile = input.files[0]
-      lrcFileContent = await lrcFile.text()
+      const file = input.files[0]
+
+      // Validate lrc file extension
+      if (!file.name.toLowerCase().endsWith('.lrc')) {
+        lrcFileError = 'Not a .lrc file'
+        lrcFile = null
+        lrcFileContent = null
+        return
+      }
+
+      const content = await file.text()
+
+      // Basic LRC format validation (check if it has timestamps)
+      if (!content.match(/\[\d{2}:\d{2}\.\d{2,3}\]/)) {
+        lrcFileError = 'Not a valid LRC file'
+        lrcFile = null
+        lrcFileContent = null
+        return
+      }
+
+      lrcFileError = null
+      lrcFile = file
+      lrcFileContent = content
     }
   }
 </script>
@@ -68,7 +104,7 @@
   />
   <label
     for="media-input"
-    class="group relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
+    class="group relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center space-y-5 duration-500 hover:text-neutral-500"
   >
     <div class="absolute inset-0 -z-10 rounded-2xl bg-white/10 blur-3xl"></div>
     {#if mediaFilePreviewBlob}
@@ -83,6 +119,15 @@
     <span class="text-lg font-medium">
       {mediaFile ? mediaFile.name : 'Select a video'}
     </span>
+    {#if mediaFileError}
+      <div
+        class="flex items-center gap-1 text-red-500"
+        transition:slide={{ duration: 300, axis: 'y' }}
+      >
+        <Warning class="size-5" />
+        <span class="text-sm">{mediaFileError}</span>
+      </div>
+    {/if}
   </label>
 
   <div class="relative size-24 shrink-0">
@@ -105,7 +150,7 @@
   <input type="file" accept=".lrc" class="hidden" id="lrc-input" onchange={handleLrcFileSelect} />
   <label
     for="lrc-input"
-    class="group relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center gap-5 duration-500 hover:text-neutral-500"
+    class="group relative flex h-64 w-64 cursor-pointer flex-col items-center justify-center space-y-5 duration-500 hover:text-neutral-500"
   >
     <div class="absolute inset-0 -z-10 rounded-2xl bg-white/10 blur-3xl"></div>
     {#if lrcFileContent}
@@ -120,5 +165,14 @@
     <span class="text-lg font-medium">
       {lrcFile ? lrcFile.name : 'Select a .lrc file'}
     </span>
+    {#if lrcFileError}
+      <div
+        class="flex items-center gap-1 text-red-500"
+        transition:slide={{ duration: 300, axis: 'y' }}
+      >
+        <Warning class="size-5" />
+        <span class="text-sm">{lrcFileError}</span>
+      </div>
+    {/if}
   </label>
 </div>
