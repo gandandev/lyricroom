@@ -1,12 +1,16 @@
 <script lang="ts">
+  import { scale } from 'svelte/transition'
   import Movie from '~icons/material-symbols/movie-rounded'
   import Lyrics from '~icons/material-symbols/lyrics-rounded'
+  import PlayArrow from '~icons/material-symbols/play-arrow-rounded'
   import Logo from '$lib/components/Logo.svelte'
 
   let mediaFile = $state<File | null>(null)
   let mediaFilePreviewBlob = $state<Blob | null>(null)
   let lrcFile = $state<File | null>(null)
   let lrcFileContent = $state<string | null>(null)
+
+  let ready = $derived(!!mediaFile && !!lrcFile)
 
   async function handleMediaFileSelect(event: Event) {
     const input = event.target as HTMLInputElement
@@ -81,7 +85,22 @@
     </span>
   </label>
 
-  <Logo class="size-24" />
+  <div class="relative size-24 shrink-0">
+    {#if ready}
+      <button
+        class="absolute inset-0 m-2 flex items-center justify-center duration-300 hover:scale-110 active:scale-95 active:opacity-80"
+        transition:scale={{ duration: 300, start: 0.5 }}
+      >
+        <div class="absolute inset-0 -z-10 rounded-2xl bg-white/30 blur-3xl"></div>
+        <div class="absolute inset-2 -z-10 rounded-full bg-white/30 blur-2xl"></div>
+        <PlayArrow class="relative size-24 text-white" />
+      </button>
+    {:else}
+      <div class="absolute" transition:scale={{ duration: 300, start: 0.5 }}>
+        <Logo class="size-24" />
+      </div>
+    {/if}
+  </div>
 
   <input type="file" accept=".lrc" class="hidden" id="lrc-input" onchange={handleLrcFileSelect} />
   <label
