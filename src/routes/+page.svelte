@@ -132,14 +132,15 @@
 
   <div class="relative size-24 shrink-0">
     {#if ready}
-      <button
+      <a
+        href="/player"
         class="absolute inset-0 m-2 flex items-center justify-center duration-300 hover:scale-110 active:scale-95 active:opacity-80"
         transition:scale={{ duration: 300, start: 0.5 }}
       >
         <div class="absolute inset-0 -z-10 rounded-2xl bg-white/30 blur-3xl"></div>
         <div class="absolute inset-2 -z-10 rounded-full bg-white/30 blur-2xl"></div>
         <PlayArrow class="relative size-24 text-white" />
-      </button>
+      </a>
     {:else}
       <div class="absolute" transition:scale={{ duration: 300, start: 0.5 }}>
         <Logo class="size-24" />
