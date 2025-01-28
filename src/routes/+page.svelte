@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { media, rawLrc } from '$lib/stores'
   import { scale, slide } from 'svelte/transition'
   import Movie from '~icons/material-symbols/movie-rounded'
   import Lyrics from '~icons/material-symbols/lyrics-rounded'
@@ -26,11 +27,13 @@
         mediaFileError = 'Not a video file'
         mediaFile = null
         mediaFilePreviewBlob = null
+        $media = null
         return
       }
 
       mediaFileError = null
       mediaFile = file
+      $media = file
 
       // Get random frame from the video
       const video = document.createElement('video')
@@ -74,6 +77,7 @@
         lrcFileError = 'Not a .lrc file'
         lrcFile = null
         lrcFileContent = null
+        $rawLrc = null
         return
       }
 
@@ -84,12 +88,14 @@
         lrcFileError = 'Not a valid LRC file'
         lrcFile = null
         lrcFileContent = null
+        $rawLrc = null
         return
       }
 
       lrcFileError = null
       lrcFile = file
       lrcFileContent = content
+      $rawLrc = content
     }
   }
 </script>
