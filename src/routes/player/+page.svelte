@@ -130,7 +130,7 @@
           {@const offset = 0.5}
           {@const isActive = lyric.start < currentTime + offset && lyric.end > currentTime + offset}
           <button
-            class="text-balance pt-8 text-left text-4xl font-bold opacity-50 duration-150 hover:opacity-80 active:scale-[0.98] active:opacity-70"
+            class="origin-left text-balance pt-8 text-left text-4xl font-bold opacity-50 duration-150 hover:opacity-80 active:scale-[0.98] active:opacity-70"
             class:active={isActive}
             class:blur-xs={!isActive}
             onclick={() => video && (video.currentTime = lyric.start)}
@@ -160,6 +160,6 @@
 
 <style lang="postcss">
   .active {
-    @apply opacity-100 blur-0;
+    @apply scale-105 opacity-100 blur-0;
   }
 </style>
