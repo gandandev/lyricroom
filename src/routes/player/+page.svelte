@@ -130,10 +130,19 @@
         {#each $lrc?.scripts ?? [] as lyric}
           {@const offset = 0.5}
           {@const isActive = lyric.start < currentTime + offset && lyric.end > currentTime + offset}
+          {@const isNext =
+            lyric.start > currentTime + offset &&
+            lyric.start ===
+              Math.min(
+                ...($lrc?.scripts ?? [])
+                  .filter((l) => l.start > currentTime + offset)
+                  .map((l) => l.start)
+              )}
           <button
             class="origin-left text-balance pt-8 text-left text-4xl font-bold opacity-50 duration-150 hover:opacity-80 active:scale-[0.98] active:opacity-70"
             class:active={isActive}
-            class:blur-xs={!isActive}
+            class:blur-[0.1rem]={isNext}
+            class:blur-[0.15rem]={!isActive && !isNext}
             onclick={() => video && (video.currentTime = lyric.start)}
           >
             {lyric.text}
