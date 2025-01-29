@@ -11,6 +11,8 @@
   let currentTime = $state(0)
   let duration = $state(0)
   let volume = $state(1)
+  let lyricsContainer: HTMLDivElement | null = $state(null)
+  let lyricElements: HTMLElement[] = $state([])
 
   function formatTime(seconds: number) {
     const mins = Math.floor(seconds / 60)
@@ -48,6 +50,30 @@
     const target = e.target as HTMLInputElement
     video.currentTime = Number(target.value)
   }
+
+  $effect(() => {
+    if (!lyricsContainer || !$lrc?.scripts) return
+
+    const offset = 0.5
+    const activeLyricIndex = $lrc.scripts.findIndex(
+      (lyric) => lyric.start < currentTime + offset && lyric.end > currentTime + offset
+    )
+
+    if (activeLyricIndex === -1) return
+    const activeElement = lyricElements[activeLyricIndex]
+    if (!activeElement) return
+
+    const containerHeight = lyricsContainer.clientHeight
+    const targetScroll = activeElement.offsetTop - (containerHeight / 5) * 2
+    const currentScroll = lyricsContainer.scrollTop
+
+    if (Math.abs(currentScroll - targetScroll) <= 200) {
+      lyricsContainer.scrollTo({
+        top: targetScroll,
+        behavior: 'smooth'
+      })
+    }
+  })
 </script>
 
 {#if $media && $rawLrc}
@@ -125,9 +151,9 @@
     </div>
 
     <!-- Lyrics -->
-    <div class="h-screen overflow-y-auto">
+    <div class="h-screen overflow-y-auto" bind:this={lyricsContainer}>
       <div class="my-[50%] flex flex-col items-start gap-12">
-        {#each $lrc?.scripts ?? [] as lyric}
+        {#each $lrc?.scripts ?? [] as lyric, index}
           {@const offset = 0.5}
           {@const isActive = lyric.start < currentTime + offset && lyric.end > currentTime + offset}
           {@const isNext =
@@ -139,6 +165,7 @@
                   .map((l) => l.start)
               )}
           <button
+            bind:this={lyricElements[index]}
             class="origin-left text-balance text-left text-4xl font-bold opacity-50 duration-150 hover:opacity-80 active:scale-[0.98] active:opacity-70"
             class:active={isActive}
             class:blur-[0.1rem]={isNext}
