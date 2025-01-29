@@ -11,7 +11,6 @@
   let currentTime = $state(0)
   let duration = $state(0)
   let volume = $state(1)
-  let prevVolume = $state(1)
 
   function formatTime(seconds: number) {
     const mins = Math.floor(seconds / 60)
@@ -27,17 +26,6 @@
       video.play()
     }
     isPlaying = !isPlaying
-  }
-
-  function toggleMute() {
-    if (!video) return
-    if (volume === 0) {
-      volume = prevVolume
-    } else {
-      prevVolume = volume
-      volume = 0
-    }
-    video.volume = volume
   }
 
   function handleTimeUpdate() {
@@ -60,19 +48,6 @@
     const target = e.target as HTMLInputElement
     video.currentTime = Number(target.value)
   }
-
-  function handleVolumeSliderChange(e: Event) {
-    if (!video) return
-    const target = e.target as HTMLInputElement
-    volume = Number(target.value)
-    video.volume = volume
-  }
-
-  $effect(() => {
-    if (video) {
-      video.volume = volume
-    }
-  })
 </script>
 
 {#if $media && $rawLrc}
