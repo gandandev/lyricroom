@@ -124,6 +124,7 @@
       </div>
     </div>
 
+    <!-- Lyrics -->
     <div class="h-screen overflow-y-auto">
       <div class="my-[50%] flex flex-col items-start">
         {#each $lrc?.scripts ?? [] as lyric}
