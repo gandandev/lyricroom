@@ -125,9 +125,18 @@
     </div>
 
     <div class="h-screen overflow-y-auto">
-      <div class="my-[50%] flex flex-col gap-2">
-        {#each $lrc?.scripts!.map((script) => script.text) ?? [] as lyric}
-          <span class="text-3xl">{lyric}</span>
+      <div class="my-[50%] flex flex-col items-start">
+        {#each $lrc?.scripts ?? [] as lyric}
+          {@const offset = 0.5}
+          {@const isActive = lyric.start < currentTime + offset && lyric.end > currentTime + offset}
+          <button
+            class="text-balance pt-8 text-left text-4xl font-bold opacity-50 duration-150 hover:opacity-80 active:scale-[0.98] active:opacity-70"
+            class:active={isActive}
+            class:blur-xs={!isActive}
+            onclick={() => video && (video.currentTime = lyric.start)}
+          >
+            {lyric.text}
+          </button>
         {/each}
       </div>
     </div>
@@ -148,3 +157,9 @@
     </div>
   </div>
 {/if}
+
+<style lang="postcss">
+  .active {
+    @apply opacity-100 blur-0;
+  }
+</style>
