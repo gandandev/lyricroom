@@ -126,7 +126,7 @@
 
     <!-- Lyrics -->
     <div class="h-screen overflow-y-auto">
-      <div class="my-[50%] flex flex-col items-start">
+      <div class="my-[50%] flex flex-col items-start gap-12">
         {#each $lrc?.scripts ?? [] as lyric}
           {@const offset = 0.5}
           {@const isActive = lyric.start < currentTime + offset && lyric.end > currentTime + offset}
@@ -139,7 +139,7 @@
                   .map((l) => l.start)
               )}
           <button
-            class="origin-left text-balance pt-8 text-left text-4xl font-bold opacity-50 duration-150 hover:opacity-80 active:scale-[0.98] active:opacity-70"
+            class="origin-left text-balance text-left text-4xl font-bold opacity-50 duration-150 hover:opacity-80 active:scale-[0.98] active:opacity-70"
             class:active={isActive}
             class:blur-[0.1rem]={isNext}
             class:blur-[0.15rem]={!isActive && !isNext}
