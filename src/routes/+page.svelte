@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { media, rawLrc, lrc } from '$lib/stores'
   import { scale, slide } from 'svelte/transition'
+  import lrcParser from 'lrc-parser'
   import Movie from '~icons/material-symbols/movie-rounded'
   import Lyrics from '~icons/material-symbols/lyrics-rounded'
   import PlayArrow from '~icons/material-symbols/play-arrow-rounded'
@@ -26,11 +28,13 @@
         mediaFileError = 'Not a video file'
         mediaFile = null
         mediaFilePreviewBlob = null
+        $media = null
         return
       }
 
       mediaFileError = null
       mediaFile = file
+      $media = file
 
       // Get random frame from the video
       const video = document.createElement('video')
@@ -65,31 +69,33 @@
   }
 
   async function handleLrcFileSelect(event: Event) {
-    const input = event.target as HTMLInputElement
-    if (input.files?.length) {
-      const file = input.files[0]
+    try {
+      const input = event.target as HTMLInputElement
+      if (input.files?.length) {
+        const file = input.files[0]
 
-      // Validate lrc file extension
-      if (!file.name.toLowerCase().endsWith('.lrc')) {
-        lrcFileError = 'Not a .lrc file'
-        lrcFile = null
-        lrcFileContent = null
-        return
+        // Validate lrc file extension
+        if (!file.name.toLowerCase().endsWith('.lrc')) {
+          lrcFileError = 'Not a LRC file'
+          lrcFile = null
+          lrcFileContent = null
+          $rawLrc = null
+          return
+        }
+
+        const content = await file.text()
+
+        lrcFileError = null
+        lrcFile = file
+        lrcFileContent = content
+        $rawLrc = content
+        $lrc = lrcParser(content)
       }
-
-      const content = await file.text()
-
-      // Basic LRC format validation (check if it has timestamps)
-      if (!content.match(/\[\d{2}:\d{2}\.\d{2,3}\]/)) {
-        lrcFileError = 'Not a valid LRC file'
-        lrcFile = null
-        lrcFileContent = null
-        return
-      }
-
-      lrcFileError = null
-      lrcFile = file
-      lrcFileContent = content
+    } catch (error) {
+      lrcFileError = 'Not a valid LRC file'
+      lrcFile = null
+      lrcFileContent = null
+      $rawLrc = null
     }
   }
 </script>
@@ -132,14 +138,15 @@
 
   <div class="relative size-24 shrink-0">
     {#if ready}
-      <button
+      <a
+        href="/player"
         class="absolute inset-0 m-2 flex items-center justify-center duration-300 hover:scale-110 active:scale-95 active:opacity-80"
         transition:scale={{ duration: 300, start: 0.5 }}
       >
         <div class="absolute inset-0 -z-10 rounded-2xl bg-white/30 blur-3xl"></div>
         <div class="absolute inset-2 -z-10 rounded-full bg-white/30 blur-2xl"></div>
         <PlayArrow class="relative size-24 text-white" />
-      </button>
+      </a>
     {:else}
       <div class="absolute" transition:scale={{ duration: 300, start: 0.5 }}>
         <Logo class="size-24" />
@@ -163,7 +170,7 @@
       <Lyrics class="size-24" />
     {/if}
     <span class="text-center text-lg font-medium">
-      {lrcFile ? lrcFile.name : 'Select a .lrc file'}
+      {lrcFile ? lrcFile.name : 'Select a LRC file'}
     </span>
     {#if lrcFileError}
       <div
